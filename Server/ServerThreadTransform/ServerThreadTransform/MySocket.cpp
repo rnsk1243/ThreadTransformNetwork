@@ -26,6 +26,8 @@ DWORD WINAPI thSendFunc(PVOID pvParam)
 	{
 		int isReturn = CMySocketClass->sendn(ClntInfo, BUF_SIZE, 0);
 		Sleep(1000);
+		// recv에 문제가 생겨 ClntInfo->isReturn에 true가 저장되거나 
+		// send에 문제가 생겨 isReturn에 -1이 저장 되면 스레드를 종료한다.
 		if (ClntInfo->isReturn == true || isReturn == -1) // 스레드 종료
 		{
 			cout << "Send스레드 종료" << endl;
@@ -52,6 +54,7 @@ DWORD WINAPI thRecvFunc(PVOID pvParam)
 		//char* Buf = new char[BUF_SIZE]; // 이러니까 소켓에러 안뜨네//.
 		int recvsize = 0;
 		recvsize = CMySocketClass->recvn(ClntInfo, BUF_SIZE, 0);
+		// recv에 문제가 생길경우
 		if (recvsize == -1) // 스레드 종료
 		{
 			// send스레드가 종료 될때까지 기다림.
@@ -59,7 +62,12 @@ DWORD WINAPI thRecvFunc(PVOID pvParam)
 			{
 				if (ClntInfo->sendThreadReturn == true)
 				{
-					cout << "sendn스레드 종료 된듯" << endl;
+					// 1. send스레드를 종료시킨다.
+					// 2. 리스트에서 구조체를 제거한다.
+					// 3. 소켓을 닫는다.
+					// 4. 구조체 메모리를 해제한다.
+					// 5. recv스레드를 종료시킨다.
+					cout << "sendn스레드 종료" << endl;
 					break;
 				}
 			}
@@ -76,6 +84,8 @@ DWORD WINAPI thRecvFunc(PVOID pvParam)
 			// 소켓 닫기
 			closesocket(*ClntInfo->hClntSock);
 			// 구조체 메모리 해제
+			//(스레드가 send or recv하는 도중에 구조체를 지우면 문제가 발생하므로 반드시 스레드를 먼저 죽인후에 더 이상
+			// send or recv하는 스레드가 없을때 제거 합니다.
 			delete ClntInfo;
 			//////////////
 			cout << "recv스레드 종료" << endl;
@@ -120,7 +130,7 @@ CMySocket::CMySocket()
 	memset(&servAddr, 0, sizeof(servAddr));
 	servAddr.sin_family = AF_INET;
 	servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	servAddr.sin_port = htons(9000);
+	servAddr.sin_port = htons(PORT);
 
 	if (bind(hServSock, (SOCKADDR*)&servAddr, sizeof(servAddr)) == SOCKET_ERROR)
 		err_display("bind() error");

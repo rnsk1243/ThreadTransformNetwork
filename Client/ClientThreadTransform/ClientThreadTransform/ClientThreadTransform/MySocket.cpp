@@ -16,8 +16,8 @@ CMySocket::CMySocket()
 	cout << "积己磊俊辑狼 林家 = " << hClntSock << endl;
 	memset(&servAddr, 0, sizeof(servAddr));
 	servAddr.sin_family = AF_INET;
-	servAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-	servAddr.sin_port = htons(9000);
+	servAddr.sin_addr.s_addr = inet_addr(IP);
+	servAddr.sin_port = htons(PORT);
 
 	if (connect(*hClntSock, (SOCKADDR*)&servAddr, sizeof(servAddr)) == SOCKET_ERROR)
 		err_display("connect() error!");

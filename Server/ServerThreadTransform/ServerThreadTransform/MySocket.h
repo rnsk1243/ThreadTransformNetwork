@@ -5,7 +5,7 @@
 using namespace std;
 
 #define BUF_SIZE sizeof(TransformStruct)
-
+#define PORT 9000
 
 struct Vector3
 {

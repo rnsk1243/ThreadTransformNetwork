@@ -5,6 +5,8 @@
 using namespace std;
 
 #define BUF_SIZE sizeof(TransformStruct)
+#define IP "127.0.0.1"
+#define PORT 9000
 
 struct Vector3
 {
